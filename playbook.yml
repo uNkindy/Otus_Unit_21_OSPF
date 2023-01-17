@@ -45,6 +45,12 @@
         name: net.ipv4.conf.all.forwarding
         value: '1'
         state:  present
+
+    - name: Enable asynchrone routing
+      sysctl:
+        name: net.ipv4.conf.all.rp_filter
+        value: "0"
+        state: present
     
     - name: Add frr configuration (ospfd and zebra)
       template: 
@@ -65,24 +71,33 @@
     - name: Restart frr
       service:
         name: frr
-        state: restartd
+        state: restarted
         enabled: true
 
-        
-# - name: OSPF
-#   hosts: all
-#   become: true
-#   gather_facts: true
-#   tasks:
-#     - name: Add routers configuration
-#       template:
-#         src: templates/frr.conf.j2
-#         dest: /etc/frr/frr.conf
-#         owner: frr
-#         group: frr
-#         mode: 0644
-#       tags:
-#         - cp_conf
 
+- name: OSPF
+  hosts: all
+  become: true
+  gather_facts: true
+  vars_files:
+    - defaults/main.yml
+  tasks:
+    - name: Add routers configuration
+      template:
+        src: templates/frr.conf.j2
+        dest: /etc/frr/frr.conf
+        owner: frr
+        group: frr
+        mode: 0644
+      tags:
+        - setup_ospf
+  
+    - name: Restart frr
+      service:
+        name: frr
+        state: restarted
+        enabled: true
+      tags:
+        - setup_ospf
 
 

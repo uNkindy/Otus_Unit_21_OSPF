@@ -35,3 +35,9 @@ listening on enp0s9, link-type EN10MB (Ethernet), capture size 262144 bytes
 12:34:24.714213 IP 192.168.10.1 > router2: ICMP echo request, id 7, seq 4, length 64
 12:34:24.714284 IP router2 > 192.168.10.1: ICMP echo reply, id 7, seq 4, length 64
 ```
+Как видно запросы и ответы идут через тот же самый интерфейс.
+___
+В целях автоматизации процесса перехода от асинхронного роутинга к симметричному, в defaults добавлена переменная для активации симметричного роутинга symmetric_routing. Переменная выставлена по умолчанию в false. Для активации симметричного роутинга выставляем переменную true и запускаем плейбук c тегом serup_ospf:
+```console
+[root@devops Otus_Unit_21_OSPF]# ansible-playbook playbook.yml -t setup_ospf
+```

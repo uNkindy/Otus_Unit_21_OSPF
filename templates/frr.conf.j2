@@ -15,6 +15,9 @@ description r1->r2
 interface enp0s8
 description r2->r1
  ip address {{ ansible_enp0s8.ipv4.address }} {{ ansible_enp0s8.ipv4.netmask }}
+    {% if ansible_hostname == "router2" and symmetric_routing == true %}
+ip ospf cost 1000
+    {% endif %}
     {% elif ansible_hostname == "router3" %}
 interface enp0s8
 description r3->r2
