@@ -1,0 +1,81 @@
+---
+- name: OSPF
+  hosts: all
+  become: true
+  gather_facts: true
+#  vars_files:
+#  - defaults/main.yml
+  tasks:
+    - name: Install base tools
+      apt:
+        name:
+        - vim
+        - traceroute
+        - tcpdump
+        - net-tools
+        state: present
+        update_cache: true
+
+    - name: Stop and disable firewall
+      systemd:
+        name: ufw
+        state: stopped
+        enabled: false
+
+    - name: Add gpg frr
+      apt_key:
+        url:  "https://deb.frrouting.org/frr/keys.asc"
+        state: present
+
+    - name: Add frr repo
+      apt_repository:
+        repo: 'deb https://deb.frrouting.org/frr {{ ansible_distribution_release }} frr-stable'
+        state: present
+
+    - name: Install frr
+      apt:
+        name:
+          - frr
+          - frr-pythontools
+        state: present
+        update_cache: true
+
+    - name: Enable routing packets
+      sysctl:
+        name: net.ipv4.conf.all.forwarding
+        value: '1'
+        state:  present
+    
+    - name: Add frr configuration (ospfd and zebra)
+      template: 
+        src: templates/daemons.j2
+        dest: /etc/frr/daemons
+        owner: frr
+        group: frr
+        mode: 0640
+
+    - name: Add routers configuration
+      template:
+        src: templates/frr.conf.j2
+        dest: /etc/frr/frr.conf
+        owner: frr
+        group: frr
+        mode: 0644
+
+- name: OSPF
+  hosts: all
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Add routers configuration
+      template:
+        src: templates/frr.conf.j2
+        dest: /etc/frr/frr.conf
+        owner: frr
+        group: frr
+        mode: 0644
+      tags:
+        - cp_conf
+
+
+
