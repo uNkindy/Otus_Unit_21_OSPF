@@ -3,8 +3,8 @@
   hosts: all
   become: true
   gather_facts: true
-#  vars_files:
-#  - defaults/main.yml
+  vars_files:
+    - defaults/main.yml
   tasks:
     - name: Install base tools
       apt:
@@ -62,20 +62,27 @@
         group: frr
         mode: 0644
 
-- name: OSPF
-  hosts: all
-  become: true
-  gather_facts: true
-  tasks:
-    - name: Add routers configuration
-      template:
-        src: templates/frr.conf.j2
-        dest: /etc/frr/frr.conf
-        owner: frr
-        group: frr
-        mode: 0644
-      tags:
-        - cp_conf
+    - name: Restart frr
+      service:
+        name: frr
+        state: restartd
+        enabled: true
+
+        
+# - name: OSPF
+#   hosts: all
+#   become: true
+#   gather_facts: true
+#   tasks:
+#     - name: Add routers configuration
+#       template:
+#         src: templates/frr.conf.j2
+#         dest: /etc/frr/frr.conf
+#         owner: frr
+#         group: frr
+#         mode: 0644
+#       tags:
+#         - cp_conf
 
 
 
